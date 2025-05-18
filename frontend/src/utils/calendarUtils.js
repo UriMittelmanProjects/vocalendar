@@ -1,5 +1,4 @@
 // vocalendar/frontend/src/utils/calendarUtils.js
-
 /**
  * Get the number of days in a month
  */
@@ -59,6 +58,7 @@ export const generateCalendarDays = (currentYear, currentMonth, selectedDate, ge
       isCurrentMonth: false,
       isToday: false,
       isSelected: 
+        selectedDate && 
         day === selectedDate.getDate() && 
         prevMonth === selectedDate.getMonth() && 
         prevMonthYear === selectedDate.getFullYear(),
@@ -78,6 +78,7 @@ export const generateCalendarDays = (currentYear, currentMonth, selectedDate, ge
         currentMonth === today.getMonth() && 
         currentYear === today.getFullYear(),
       isSelected: 
+        selectedDate && 
         i === selectedDate.getDate() && 
         currentMonth === selectedDate.getMonth() && 
         currentYear === selectedDate.getFullYear(),
@@ -94,6 +95,7 @@ export const generateCalendarDays = (currentYear, currentMonth, selectedDate, ge
       isCurrentMonth: false,
       isToday: false,
       isSelected: 
+        selectedDate && 
         i === selectedDate.getDate() && 
         nextMonth === selectedDate.getMonth() && 
         nextMonthYear === selectedDate.getFullYear(),
