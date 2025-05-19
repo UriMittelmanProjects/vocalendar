@@ -7,13 +7,14 @@ const RecurrenceActionModal = () => {
     isRecurrenceActionModalOpen, 
     closeRecurrenceActionModal, 
     handleRecurrenceAction,
-    currentEvent
+    currentEvent,
+    recurrenceAction
   } = useCalendarContext();
 
   if (!isRecurrenceActionModalOpen || !currentEvent) return null;
 
   // Determine if we're editing or deleting
-  const isEditing = currentEvent && currentEvent.recurrenceAction === 'edit';
+  const isEditing = recurrenceAction === 'edit';
   const modalTitle = isEditing ? 'Edit Recurring Event' : 'Delete Recurring Event';
   const actionText = isEditing ? 'edit' : 'delete';
 

@@ -242,7 +242,8 @@ export const CalendarProvider = ({ children }) => {
     confirmDeleteEvent,
     isRecurrenceActionModalOpen,
     closeRecurrenceActionModal,
-    handleRecurrenceAction
+    handleRecurrenceAction,
+    recurrenceAction  
   };
   
   return (
