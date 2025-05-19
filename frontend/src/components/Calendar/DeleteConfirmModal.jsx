@@ -1,8 +1,19 @@
 // vocalendar/frontend/src/components/Calendar/DeleteConfirmModal.jsx
 import React from 'react';
 
-const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, eventTitle }) => {
+const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, eventTitle, isRecurring, recurrenceActionType }) => {
   if (!isOpen) return null;
+  
+  // Set appropriate message based on recurring status
+  let confirmMessage = `Are you sure you want to delete the event "${eventTitle}"? This action cannot be undone.`;
+  
+  if (isRecurring) {
+    if (recurrenceActionType === 'single') {
+      confirmMessage = `Are you sure you want to delete this occurrence of "${eventTitle}"? This action cannot be undone.`;
+    } else if (recurrenceActionType === 'all') {
+      confirmMessage = `Are you sure you want to delete all occurrences of "${eventTitle}"? This will delete the entire series and cannot be undone.`;
+    }
+  }
   
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
@@ -10,7 +21,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, eventTitle }) => {
         <h2 className="text-xl font-semibold mb-4">Delete Event</h2>
         
         <p className="mb-6 text-gray-700">
-          Are you sure you want to delete the event "{eventTitle}"? This action cannot be undone.
+          {confirmMessage}
         </p>
         
         <div className="flex justify-end space-x-3">

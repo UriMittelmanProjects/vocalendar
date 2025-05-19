@@ -105,3 +105,197 @@ export const generateCalendarDays = (currentYear, currentMonth, selectedDate, ge
   
   return calendarDays;
 };
+
+/**
+ * Check if a date is in a repeating series
+ */
+export const isDateInSeries = (date, event) => {
+  if (!event.repeat) return false;
+  
+  const originalDate = new Date(event.date);
+  const targetDate = new Date(date);
+  const { frequency, interval, days, ends } = event.repeat;
+  
+  // Check end date constraints
+  if (ends) {
+    if (ends.type === 'on' && targetDate > new Date(ends.date)) {
+      return false;
+    }
+    
+    // For 'after' type, we'll check during series generation
+  }
+  
+  // Check if target date is before the original event date
+  if (targetDate < originalDate) {
+    return false;
+  }
+  
+  // Handle different frequencies
+  switch (frequency) {
+    case 'daily':
+      // Calculate days between dates
+      const dayDiff = Math.floor((targetDate - originalDate) / (1000 * 60 * 60 * 24));
+      return dayDiff % interval === 0;
+      
+    case 'weekly':
+      // Check if it's the right day of the week
+      const dayOfWeek = targetDate.getDay();
+      if (!days.includes(dayOfWeek)) {
+        return false;
+      }
+      
+      // Check if it's the right interval of weeks
+      const weekDiff = Math.floor((targetDate - originalDate) / (1000 * 60 * 60 * 24 * 7));
+      return weekDiff % interval === 0;
+      
+    case 'monthly':
+      // Get difference in months
+      const monthDiff = (targetDate.getFullYear() - originalDate.getFullYear()) * 12 + 
+                       (targetDate.getMonth() - originalDate.getMonth());
+                       
+      // If not at the right interval of months, return false
+      if (monthDiff % interval !== 0) {
+        return false;
+      }
+      
+      // Check if it's the right day of the month
+      return targetDate.getDate() === originalDate.getDate();
+      
+    case 'yearly':
+      // Check if it's the same month and day
+      if (targetDate.getMonth() !== originalDate.getMonth() || 
+          targetDate.getDate() !== originalDate.getDate()) {
+        return false;
+      }
+      
+      // Check if it's the right interval of years
+      const yearDiff = targetDate.getFullYear() - originalDate.getFullYear();
+      return yearDiff % interval === 0;
+      
+    default:
+      return false;
+  }
+};
+
+/**
+ * Generate occurrences for a repeating event within a date range
+ */
+export const generateOccurrences = (event, startDate, endDate, limit = 100) => {
+  if (!event.repeat) return [event];
+  
+  const occurrences = [];
+  const { frequency, interval, days, ends } = event.repeat;
+  const originalDate = new Date(event.date);
+  
+  let currentDate = new Date(originalDate);
+  let count = 0;
+  
+  // Add the original event
+  if (currentDate >= startDate && currentDate <= endDate) {
+    occurrences.push({...event});
+  }
+  
+  // Set up the loop based on frequency
+  switch (frequency) {
+    case 'daily':
+      while (currentDate <= endDate && count < limit) {
+        // Move to next day
+        currentDate = new Date(currentDate);
+        currentDate.setDate(currentDate.getDate() + interval);
+        
+        if (currentDate >= startDate && currentDate <= endDate) {
+          const occurrence = {
+            ...event,
+            id: `${event.id}-${count}`,
+            date: new Date(currentDate)
+          };
+          occurrences.push(occurrence);
+        }
+        
+        count++;
+        
+        // Check end conditions
+        if (ends.type === 'after' && count >= ends.occurrences) break;
+        if (ends.type === 'on' && currentDate > new Date(ends.date)) break;
+      }
+      break;
+      
+    case 'weekly':
+      // For each specified day of the week
+      while (currentDate <= endDate && count < limit) {
+        // Move to next week
+        currentDate = new Date(currentDate);
+        currentDate.setDate(currentDate.getDate() + (7 * interval));
+        
+        // Check each day in the week
+        for (const day of days) {
+          const dayDiff = day - currentDate.getDay();
+          const dateForDay = new Date(currentDate);
+          dateForDay.setDate(dateForDay.getDate() + dayDiff);
+          
+          if (dateForDay >= startDate && dateForDay <= endDate && dateForDay >= originalDate) {
+            const occurrence = {
+              ...event,
+              id: `${event.id}-${count}`,
+              date: new Date(dateForDay)
+            };
+            occurrences.push(occurrence);
+            count++;
+          }
+        }
+        
+        // Check end conditions
+        if (ends.type === 'after' && count >= ends.occurrences) break;
+        if (ends.type === 'on' && currentDate > new Date(ends.date)) break;
+      }
+      break;
+      
+    case 'monthly':
+      while (currentDate <= endDate && count < limit) {
+        // Move to next month
+        currentDate = new Date(currentDate);
+        currentDate.setMonth(currentDate.getMonth() + interval);
+        
+        if (currentDate >= startDate && currentDate <= endDate) {
+          const occurrence = {
+            ...event,
+            id: `${event.id}-${count}`,
+            date: new Date(currentDate)
+          };
+          occurrences.push(occurrence);
+        }
+        
+        count++;
+        
+        // Check end conditions
+        if (ends.type === 'after' && count >= ends.occurrences) break;
+        if (ends.type === 'on' && currentDate > new Date(ends.date)) break;
+      }
+      break;
+      
+    case 'yearly':
+      while (currentDate <= endDate && count < limit) {
+        // Move to next year
+        currentDate = new Date(currentDate);
+        currentDate.setFullYear(currentDate.getFullYear() + interval);
+        
+        if (currentDate >= startDate && currentDate <= endDate) {
+          const occurrence = {
+            ...event,
+            id: `${event.id}-${count}`,
+            date: new Date(currentDate)
+          };
+          occurrences.push(occurrence);
+        }
+        
+        count++;
+        
+        // Check end conditions
+        if (ends.type === 'after' && count >= ends.occurrences) break;
+        if (ends.type === 'on' && currentDate > new Date(ends.date)) break;
+      }
+      break;
+  }
+  
+  return occurrences;
+};

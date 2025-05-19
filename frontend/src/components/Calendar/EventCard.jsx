@@ -5,6 +5,43 @@ import { useCalendarContext } from '../../context/CalendarContext';
 const EventCard = ({ event }) => {
   const { openEditEventModal, openDeleteConfirmModal } = useCalendarContext();
 
+  // Get the display label for the repeat pattern
+  const getRepeatLabel = (repeat) => {
+    if (!repeat) return null;
+    
+    const { frequency, interval, days } = repeat;
+    
+    switch (frequency) {
+      case 'daily':
+        return interval === 1 ? 'Daily' : `Every ${interval} days`;
+        
+      case 'weekly':
+        if (days.length === 1) {
+          const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          return interval === 1 
+            ? `Weekly on ${dayNames[days[0]]}` 
+            : `Every ${interval} weeks on ${dayNames[days[0]]}`;
+        } else {
+          const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          const daysList = days.map(day => dayNames[day]).join(', ');
+          return interval === 1 
+            ? `Weekly on ${daysList}` 
+            : `Every ${interval} weeks on ${daysList}`;
+        }
+        
+      case 'monthly':
+        return interval === 1 ? 'Monthly' : `Every ${interval} months`;
+        
+      case 'yearly':
+        return interval === 1 ? 'Yearly' : `Every ${interval} years`;
+        
+      default:
+        return 'Repeating';
+    }
+  };
+
+  const repeatLabel = event.repeat ? getRepeatLabel(event.repeat) : null;
+
   return (
     <div className={`bg-white rounded-lg shadow-sm p-3 border-l-4 ${event.isTentative ? 'border-yellow-500' : 'border-blue-500'} hover:shadow-md transition-shadow`}>
       <div className="flex justify-between items-start">
@@ -32,6 +69,16 @@ const EventCard = ({ event }) => {
       {event.description && (
         <div className="text-sm text-gray-600 mt-1 line-clamp-2">
           {event.description}
+        </div>
+      )}
+      
+      {/* Repeat indicator */}
+      {repeatLabel && (
+        <div className="mt-2 flex items-center text-xs text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {repeatLabel}
         </div>
       )}
       

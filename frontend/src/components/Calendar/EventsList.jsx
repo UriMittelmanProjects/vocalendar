@@ -5,6 +5,7 @@ import EventCard from './EventCard';
 import AddEventModal from './AddEventModal';
 import EditEventModal from './EditEventModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
+import RecurrenceActionModal from './RecurrenceActionModal';
 
 const EventsList = () => {
   const { 
@@ -18,7 +19,8 @@ const EventsList = () => {
     currentEvent,
     isDeleteConfirmModalOpen,
     closeDeleteConfirmModal,
-    confirmDeleteEvent
+    confirmDeleteEvent,
+    isRecurrenceActionModalOpen
   } = useCalendarContext();
   
   return (
@@ -67,9 +69,13 @@ const EventsList = () => {
       <DeleteConfirmModal 
         isOpen={isDeleteConfirmModalOpen} 
         onClose={closeDeleteConfirmModal}
-        onConfirm={confirmDeleteEvent}
+        onConfirm={() => confirmDeleteEvent(currentEvent?.recurrenceActionType || 'single')}
         eventTitle={currentEvent?.title || ''}
+        isRecurring={!!(currentEvent?.repeat && currentEvent?.repeat.seriesId)}
+        recurrenceActionType={currentEvent?.recurrenceActionType}
       />
+      
+      <RecurrenceActionModal />
     </div>
   );
 };
