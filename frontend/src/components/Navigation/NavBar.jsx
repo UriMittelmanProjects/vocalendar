@@ -39,15 +39,15 @@ const NavBar = () => {
   return (
     <>
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-lg z-10">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg z-10">
         <div className="flex justify-around">
           {navItems.map(item => (
             <button
               key={item.id}
               className={`flex flex-col items-center py-2 px-3 ${
                 activeTab === item.id 
-                  ? 'text-purple-600 dark:text-purple-400' 
-                  : 'text-gray-600 dark:text-gray-400'
+                  ? 'text-purple-600' 
+                  : 'text-gray-600'
               }`}
               onClick={() => setActiveTab(item.id)}
               aria-label={item.label}
@@ -56,7 +56,7 @@ const NavBar = () => {
               <span className="text-xs mt-1">{item.label}</span>
               {activeTab === item.id && (
                 <motion.div
-                  className="absolute bottom-0 h-1 w-full bg-purple-600 dark:bg-purple-400"
+                  className="absolute bottom-0 h-1 w-full bg-purple-600"
                   layoutId="underline"
                   initial={false}
                 />
@@ -67,7 +67,7 @@ const NavBar = () => {
       </nav>
 
       {/* Desktop Side Navigation */}
-      <nav className="hidden md:flex flex-col fixed left-0 top-20 h-full bg-white dark:bg-gray-800 shadow-md rounded-tr-lg rounded-br-lg p-4 z-10">
+      <nav className="hidden md:flex flex-col fixed left-0 top-20 h-full bg-white shadow-md rounded-tr-lg rounded-br-lg p-4 z-10">
         {navItems.map(item => (
           <button
             key={item.id}
@@ -75,8 +75,8 @@ const NavBar = () => {
               flex items-center space-x-2 py-3 px-4 rounded-lg mb-2 transition-colors
               ${
                 activeTab === item.id 
-                  ? 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-300' 
-                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  ? 'bg-purple-100 text-purple-600' 
+                  : 'text-gray-700 hover:bg-gray-100'
               }
             `}
             onClick={() => setActiveTab(item.id)}

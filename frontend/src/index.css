@@ -10,7 +10,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: light;  /* Changed from "light dark" to just "light" */
   color: #213547;
   background-color: #f8f9fa;
 
@@ -167,40 +167,7 @@ h3 {
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
-  }
-  
-  .calendar-container,
-  .events-list,
-  .event-card,
-  .calendar-cell-current-month {
-    @apply bg-gray-800 text-white;
-  }
-  
-  .calendar-cell-other-month {
-    @apply bg-gray-900 text-gray-500;
-  }
-  
-  .calendar-weekday {
-    @apply text-gray-400;
-  }
-  
-  .calendar-cell-today {
-    @apply bg-purple-900;
-  }
-  
-  .nav-button {
-    @apply hover:bg-gray-700;
-  }
-  
-  .secondary-button {
-    @apply hover:bg-purple-900;
-  }
-}
+/* REMOVED: Dark mode support media query */
 
 /* Accessibility focus styles */
 :focus {
@@ -252,16 +219,4 @@ h3 {
   background: #a0a0a0;
 }
 
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-track {
-    background: #2d2d2d;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #555;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #777;
-  }
-}
+/* REMOVED: Dark mode scrollbar styles */
