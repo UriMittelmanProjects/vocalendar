@@ -180,6 +180,9 @@ export const isDateInSeries = (date, event) => {
 /**
  * Generate occurrences for a repeating event within a date range
  */
+/**
+ * Generate occurrences for a repeating event within a date range
+ */
 export const generateOccurrences = (event, startDate, endDate, limit = 100) => {
   if (!event.repeat) return [event];
   
@@ -187,11 +190,20 @@ export const generateOccurrences = (event, startDate, endDate, limit = 100) => {
   const { frequency, interval, days, ends } = event.repeat;
   const originalDate = new Date(event.date);
   
+  // Get exceptions list (dates to skip)
+  const exceptions = event.repeat.exceptions || [];
+  
   let currentDate = new Date(originalDate);
   let count = 0;
   
-  // Add the original event
-  if (currentDate >= startDate && currentDate <= endDate) {
+  // Add the original event if it's not in exceptions
+  const originalDateISO = originalDate.toISOString().split('T')[0];
+  const isOriginalExcepted = exceptions.some(exception => {
+    const exceptionDate = new Date(exception);
+    return exceptionDate.toISOString().split('T')[0] === originalDateISO;
+  });
+  
+  if (currentDate >= startDate && currentDate <= endDate && !isOriginalExcepted) {
     occurrences.push({...event});
   }
   
@@ -203,7 +215,14 @@ export const generateOccurrences = (event, startDate, endDate, limit = 100) => {
         currentDate = new Date(currentDate);
         currentDate.setDate(currentDate.getDate() + interval);
         
-        if (currentDate >= startDate && currentDate <= endDate) {
+        // Check exceptions
+        const currentDateISO = currentDate.toISOString().split('T')[0];
+        const isExcepted = exceptions.some(exception => {
+          const exceptionDate = new Date(exception);
+          return exceptionDate.toISOString().split('T')[0] === currentDateISO;
+        });
+        
+        if (currentDate >= startDate && currentDate <= endDate && !isExcepted) {
           const occurrence = {
             ...event,
             id: `${event.id}-${count}`,
@@ -233,7 +252,14 @@ export const generateOccurrences = (event, startDate, endDate, limit = 100) => {
           const dateForDay = new Date(currentDate);
           dateForDay.setDate(dateForDay.getDate() + dayDiff);
           
-          if (dateForDay >= startDate && dateForDay <= endDate && dateForDay >= originalDate) {
+          // Check exceptions
+          const dateForDayISO = dateForDay.toISOString().split('T')[0];
+          const isExcepted = exceptions.some(exception => {
+            const exceptionDate = new Date(exception);
+            return exceptionDate.toISOString().split('T')[0] === dateForDayISO;
+          });
+          
+          if (dateForDay >= startDate && dateForDay <= endDate && dateForDay >= originalDate && !isExcepted) {
             const occurrence = {
               ...event,
               id: `${event.id}-${count}`,
@@ -256,7 +282,14 @@ export const generateOccurrences = (event, startDate, endDate, limit = 100) => {
         currentDate = new Date(currentDate);
         currentDate.setMonth(currentDate.getMonth() + interval);
         
-        if (currentDate >= startDate && currentDate <= endDate) {
+        // Check exceptions
+        const currentDateISO = currentDate.toISOString().split('T')[0];
+        const isExcepted = exceptions.some(exception => {
+          const exceptionDate = new Date(exception);
+          return exceptionDate.toISOString().split('T')[0] === currentDateISO;
+        });
+        
+        if (currentDate >= startDate && currentDate <= endDate && !isExcepted) {
           const occurrence = {
             ...event,
             id: `${event.id}-${count}`,
@@ -279,7 +312,14 @@ export const generateOccurrences = (event, startDate, endDate, limit = 100) => {
         currentDate = new Date(currentDate);
         currentDate.setFullYear(currentDate.getFullYear() + interval);
         
-        if (currentDate >= startDate && currentDate <= endDate) {
+        // Check exceptions
+        const currentDateISO = currentDate.toISOString().split('T')[0];
+        const isExcepted = exceptions.some(exception => {
+          const exceptionDate = new Date(exception);
+          return exceptionDate.toISOString().split('T')[0] === currentDateISO;
+        });
+        
+        if (currentDate >= startDate && currentDate <= endDate && !isExcepted) {
           const occurrence = {
             ...event,
             id: `${event.id}-${count}`,
