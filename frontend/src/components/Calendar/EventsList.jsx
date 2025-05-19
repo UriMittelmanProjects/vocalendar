@@ -3,6 +3,8 @@ import React from 'react';
 import { useCalendarContext } from '../../context/CalendarContext';
 import EventCard from './EventCard';
 import AddEventModal from './AddEventModal';
+import EditEventModal from './EditEventModal';
+import DeleteConfirmModal from './DeleteConfirmModal';
 
 const EventsList = () => {
   const { 
@@ -10,7 +12,13 @@ const EventsList = () => {
     selectedDateEvents, 
     isAddEventModalOpen, 
     openAddEventModal, 
-    closeAddEventModal 
+    closeAddEventModal,
+    isEditEventModalOpen,
+    closeEditEventModal,
+    currentEvent,
+    isDeleteConfirmModalOpen,
+    closeDeleteConfirmModal,
+    confirmDeleteEvent
   } = useCalendarContext();
   
   return (
@@ -44,9 +52,23 @@ const EventsList = () => {
         + Add Event
       </button>
       
+      {/* Event Modals */}
       <AddEventModal 
         isOpen={isAddEventModalOpen} 
         onClose={closeAddEventModal} 
+      />
+      
+      <EditEventModal 
+        isOpen={isEditEventModalOpen} 
+        onClose={closeEditEventModal} 
+        event={currentEvent}
+      />
+      
+      <DeleteConfirmModal 
+        isOpen={isDeleteConfirmModalOpen} 
+        onClose={closeDeleteConfirmModal}
+        onConfirm={confirmDeleteEvent}
+        eventTitle={currentEvent?.title || ''}
       />
     </div>
   );

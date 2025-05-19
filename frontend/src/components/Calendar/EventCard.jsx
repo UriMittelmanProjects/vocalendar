@@ -1,7 +1,10 @@
 // vocalendar/frontend/src/components/Calendar/EventCard.jsx
 import React from 'react';
+import { useCalendarContext } from '../../context/CalendarContext';
 
 const EventCard = ({ event }) => {
+  const { openEditEventModal, openDeleteConfirmModal } = useCalendarContext();
+
   return (
     <div className={`bg-white rounded-lg shadow-sm p-3 border-l-4 ${event.isTentative ? 'border-yellow-500' : 'border-blue-500'} hover:shadow-md transition-shadow`}>
       <div className="flex justify-between items-start">
@@ -44,6 +47,28 @@ const EventCard = ({ event }) => {
           ))}
         </div>
       )}
+      
+      {/* Action buttons */}
+      <div className="mt-3 flex justify-end space-x-2">
+        <button
+          onClick={() => openEditEventModal(event)}
+          className="p-1.5 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md"
+          aria-label="Edit event"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
+        <button
+          onClick={() => openDeleteConfirmModal(event)}
+          className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md"
+          aria-label="Delete event"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 };

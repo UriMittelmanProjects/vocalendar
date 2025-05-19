@@ -12,6 +12,9 @@ export const CalendarProvider = ({ children }) => {
   const [selectedDate, setSelectedDate] = useState(today);
   const [events, setEvents] = useState(mockEvents);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
+  const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false);
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+  const [currentEvent, setCurrentEvent] = useState(null);
   
   // Navigation functions
   const goToPrevMonth = () => {
@@ -45,9 +48,47 @@ export const CalendarProvider = ({ children }) => {
     setEvents(prevEvents => [...prevEvents, newEvent]);
   };
   
-  // Modal management
+  const updateEvent = (updatedEvent) => {
+    setEvents(prevEvents => 
+      prevEvents.map(event => 
+        event.id === updatedEvent.id ? updatedEvent : event
+      )
+    );
+  };
+  
+  const deleteEvent = (eventId) => {
+    setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+  };
+  
+  // Modal management for Add Event
   const openAddEventModal = () => setIsAddEventModalOpen(true);
   const closeAddEventModal = () => setIsAddEventModalOpen(false);
+  
+  // Modal management for Edit Event
+  const openEditEventModal = (event) => {
+    setCurrentEvent(event);
+    setIsEditEventModalOpen(true);
+  };
+  const closeEditEventModal = () => {
+    setIsEditEventModalOpen(false);
+    setCurrentEvent(null);
+  };
+  
+  // Modal management for Delete Confirmation
+  const openDeleteConfirmModal = (event) => {
+    setCurrentEvent(event);
+    setIsDeleteConfirmModalOpen(true);
+  };
+  const closeDeleteConfirmModal = () => {
+    setIsDeleteConfirmModalOpen(false);
+    setCurrentEvent(null);
+  };
+  const confirmDeleteEvent = () => {
+    if (currentEvent) {
+      deleteEvent(currentEvent.id);
+      closeDeleteConfirmModal();
+    }
+  };
   
   // Get events for selected date
   const selectedDateEvents = events.filter(
@@ -79,9 +120,19 @@ export const CalendarProvider = ({ children }) => {
     selectedDateEvents,
     getEventCountForDay,
     addEvent,
+    updateEvent,
+    deleteEvent,
     isAddEventModalOpen,
     openAddEventModal,
-    closeAddEventModal
+    closeAddEventModal,
+    isEditEventModalOpen,
+    openEditEventModal,
+    closeEditEventModal,
+    currentEvent,
+    isDeleteConfirmModalOpen,
+    openDeleteConfirmModal,
+    closeDeleteConfirmModal,
+    confirmDeleteEvent
   };
   
   return (
