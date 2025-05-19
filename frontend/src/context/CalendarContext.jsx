@@ -1,4 +1,4 @@
-// CalendarContext.jsx
+// vocalendar/frontend/src/context/CalendarContext.jsx
 import { createContext, useState, useContext } from 'react';
 import { generateCalendarDays } from '../utils/calendarUtils';
 import mockEvents from '../data/mockEvents';
@@ -10,6 +10,8 @@ export const CalendarProvider = ({ children }) => {
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = useState(today);
+  const [events, setEvents] = useState(mockEvents);
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   
   // Navigation functions
   const goToPrevMonth = () => {
@@ -38,8 +40,17 @@ export const CalendarProvider = ({ children }) => {
     setSelectedDate(today);
   };
   
+  // Event management functions
+  const addEvent = (newEvent) => {
+    setEvents(prevEvents => [...prevEvents, newEvent]);
+  };
+  
+  // Modal management
+  const openAddEventModal = () => setIsAddEventModalOpen(true);
+  const closeAddEventModal = () => setIsAddEventModalOpen(false);
+  
   // Get events for selected date
-  const selectedDateEvents = mockEvents.filter(
+  const selectedDateEvents = events.filter(
     event => 
       event.date.getFullYear() === selectedDate.getFullYear() &&
       event.date.getMonth() === selectedDate.getMonth() &&
@@ -48,7 +59,7 @@ export const CalendarProvider = ({ children }) => {
   
   // Count events for day
   const getEventCountForDay = (year, month, day) => {
-    return mockEvents.filter(
+    return events.filter(
       event => 
         event.date.getFullYear() === year &&
         event.date.getMonth() === month &&
@@ -64,8 +75,13 @@ export const CalendarProvider = ({ children }) => {
     goToPrevMonth,
     goToNextMonth,
     goToToday,
+    events,
     selectedDateEvents,
-    getEventCountForDay
+    getEventCountForDay,
+    addEvent,
+    isAddEventModalOpen,
+    openAddEventModal,
+    closeAddEventModal
   };
   
   return (

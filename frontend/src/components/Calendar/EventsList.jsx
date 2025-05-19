@@ -2,9 +2,16 @@
 import React from 'react';
 import { useCalendarContext } from '../../context/CalendarContext';
 import EventCard from './EventCard';
+import AddEventModal from './AddEventModal';
 
 const EventsList = () => {
-  const { selectedDate, selectedDateEvents } = useCalendarContext();
+  const { 
+    selectedDate, 
+    selectedDateEvents, 
+    isAddEventModalOpen, 
+    openAddEventModal, 
+    closeAddEventModal 
+  } = useCalendarContext();
   
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
@@ -32,9 +39,15 @@ const EventsList = () => {
       
       <button
         className="mt-4 w-full p-2 rounded-md border border-purple-500 text-purple-600 hover:bg-purple-50"
+        onClick={openAddEventModal}
       >
         + Add Event
       </button>
+      
+      <AddEventModal 
+        isOpen={isAddEventModalOpen} 
+        onClose={closeAddEventModal} 
+      />
     </div>
   );
 };
