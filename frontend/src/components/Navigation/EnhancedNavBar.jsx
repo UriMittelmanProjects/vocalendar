@@ -8,8 +8,7 @@ const itemVariants = {
   open: { opacity: 1, x: 0 }
 };
 
-const EnhancedNavBar = () => {
-  const [activeTab, setActiveTab] = useState('calendar');
+const EnhancedNavBar = ({ activeTab, setActiveTab }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Navigation items with icons

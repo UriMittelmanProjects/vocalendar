@@ -103,7 +103,7 @@ function App() {
         </AnimatePresence>
       </main>
       
-      {/* <EnhancedNavBar activeTab={activeTab} setActiveTab={setActiveTab} /> */}
+      <EnhancedNavBar activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 }
