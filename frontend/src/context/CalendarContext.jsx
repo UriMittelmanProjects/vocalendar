@@ -18,23 +18,21 @@ export const CalendarProvider = ({ children }) => {
   
   // Navigation functions
   const goToPrevMonth = () => {
-    setCurrentMonth(prevMonth => {
-      if (prevMonth === 0) {
-        setCurrentYear(prevYear => prevYear - 1);
-        return 11;
-      }
-      return prevMonth - 1;
-    });
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
   };
   
   const goToNextMonth = () => {
-    setCurrentMonth(prevMonth => {
-      if (prevMonth === 11) {
-        setCurrentYear(prevYear => prevYear + 1);
-        return 0;
-      }
-      return prevMonth + 1;
-    });
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
   };
   
   const goToToday = () => {
