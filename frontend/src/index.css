@@ -5,12 +5,13 @@
 @tailwind utilities;
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light;  /* Changed from "light dark" to just "light" */
+  color-scheme: light;
+  /* Changed from "light dark" to just "light" */
   color: #213547;
   background-color: #f8f9fa;
 
@@ -48,15 +49,15 @@ h3 {
 /* Calendar specific styles */
 @layer components {
   .calendar-container {
-    @apply bg-white rounded-lg shadow-md overflow-hidden;
+    @apply bg-white rounded-lg shadow-md overflow-hidden mx-2 md:mx-0;
   }
 
   .calendar-header {
-    @apply p-4 border-b border-gray-200 flex justify-between items-center;
+    @apply p-3 md:p-4 border-b border-gray-200 flex justify-between items-center;
   }
 
   .calendar-grid {
-    @apply p-2;
+    @apply p-1 md:p-2;
   }
 
   .calendar-weekday {
@@ -64,8 +65,7 @@ h3 {
   }
 
   .calendar-cell {
-    @apply relative flex flex-col justify-center items-center h-12 md:h-16 border border-gray-200
-      cursor-pointer transition-colors duration-200;
+    @apply relative flex flex-col justify-center items-center h-12 md:h-16 border border-gray-200 cursor-pointer transition-colors duration-200;
   }
 
   .calendar-cell-current-month {
@@ -97,11 +97,11 @@ h3 {
   }
 
   .events-list {
-    @apply bg-white rounded-lg shadow-md p-4 h-full;
+    @apply bg-white rounded-lg shadow-md p-3 md:p-4 h-full mx-2 md:mx-0;
   }
 
   .event-card {
-    @apply bg-white rounded-lg shadow-sm p-3 border-l-4 hover:shadow-md transition-shadow;
+    @apply bg-white rounded-lg shadow-sm p-2 md:p-3 border-l-4 hover:shadow-md transition-shadow;
   }
 
   .nav-button {
@@ -109,13 +109,11 @@ h3 {
   }
 
   .primary-button {
-    @apply px-3 py-1 text-sm rounded-md bg-purple-600 text-white hover:bg-purple-700
-      focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
+    @apply px-3 py-1 text-sm rounded-md bg-purple-600 text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
   }
 
   .secondary-button {
-    @apply w-full p-2 rounded-md border border-purple-500 text-purple-600 hover:bg-purple-50
-      focus:outline-none focus:ring-2 focus:ring-purple-400;
+    @apply w-full p-2 rounded-md border border-purple-500 text-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-400;
   }
 }
 
@@ -139,29 +137,29 @@ h3 {
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .calendar-container {
-    @apply p-2;
+    @apply p-1;
   }
-  
+
   .calendar-header {
     @apply p-2;
   }
-  
+
   .calendar-cell {
-    @apply h-10;
+    @apply h-12;
   }
-  
+
   .calendar-day-number {
-    @apply text-xs;
+    @apply text-sm;
   }
-  
+
   .calendar-event-indicator {
     @apply h-1 w-1;
   }
-  
+
   .events-list {
-    @apply p-3;
+    @apply p-2;
   }
-  
+
   .event-card {
     @apply p-2;
   }
@@ -184,12 +182,34 @@ h3 {
   outline-offset: 2px;
 }
 
+/* Time Selector styles */
+.time-selector {
+  @apply relative;
+}
+
+.time-selector select {
+  @apply appearance-none bg-white;
+}
+
+.time-selector select::-ms-expand {
+  display: none;
+}
+
+.duration-selector {
+  @apply mt-2;
+}
+
+.duration-selector button:hover:not(:disabled) {
+  @apply bg-purple-100 text-purple-700;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -220,3 +240,29 @@ h3 {
 }
 
 /* REMOVED: Dark mode scrollbar styles */
+
+/* Better mobile spacing */
+.App {
+  @apply px-2;
+}
+
+/* Reduce gap between calendar and events on mobile */
+.flex.flex-col.md\\:flex-row.w-full.gap-4 {
+  @apply gap-2;
+}
+
+/* Mobile time selector improvements */
+.time-selector select {
+  @apply text-base;
+  /* Prevents zoom on iOS */
+}
+
+.time-selector button {
+  @apply py-3 px-4;
+  /* Larger touch targets */
+}
+
+.duration-selector button {
+  @apply py-2 px-3 text-sm;
+  /* Better mobile touch targets */
+}

@@ -18,8 +18,8 @@ function App() {
   };
 
   return (
-    <div className="App min-h-screen bg-gray-100 p-4">
-      <header className="bg-purple-800 text-white p-4 rounded-lg mb-4">
+    <div className="App min-h-screen bg-gray-100">
+      <header className="bg-purple-800 text-white p-4 mb-4">
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold">Vocalendar</h1>
           {/* Only show on desktop, since we have bottom nav for mobile */}
@@ -60,7 +60,7 @@ function App() {
         </div>
       </header>
       
-      <main className="pb-16 md:pb-4 md:ml-16">
+      <main className="pb-16 md:pb-4 md:ml-16 px-4">
         <AnimatePresence mode="wait">
           {activeTab === 'calendar' && (
             <motion.div

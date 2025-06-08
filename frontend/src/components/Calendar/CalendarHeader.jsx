@@ -2,17 +2,23 @@
 import React from 'react';
 import { useCalendarContext } from '../../context/CalendarContext';
 import { getMonthName } from '../../utils/calendarUtils';
+import ViewSelector from './ViewSelector';
 
 const CalendarHeader = () => {
-  const { currentMonth, currentYear, goToPrevMonth, goToNextMonth, goToToday } = useCalendarContext();
+  const { currentMonth, currentYear, goToPrevMonth, goToNextMonth, goToToday, currentView } = useCalendarContext();
 
   return (
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-bold">
-        {getMonthName(currentMonth)} {currentYear}
-      </h2>
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 space-y-2 md:space-y-0">
+      <div className="flex items-center space-x-4">
+        <h2 className="text-xl font-bold">
+          {currentView === 'month' ? `${getMonthName(currentMonth)} ${currentYear}` : 
+           currentView === 'day' ? 'Day View' :
+           currentView === 'week' ? 'Week View' : '3 Day View'}
+        </h2>
+        <ViewSelector />
+      </div>
       
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 ml-auto md:ml-0">
         <button
           onClick={goToPrevMonth}
           className="p-2 rounded-md hover:bg-gray-100"

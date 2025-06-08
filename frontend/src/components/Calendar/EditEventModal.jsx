@@ -1,6 +1,9 @@
 // vocalendar/frontend/src/components/Calendar/EditEventModal.jsx
 import React, { useState, useEffect } from 'react';
 import { useCalendarContext } from '../../context/CalendarContext';
+import TimeSelector from '../UI/TimeSelector';
+import DurationSelector from '../UI/DurationSelector';
+import RecurrenceSelector from '../UI/RecurrenceSelector';
 
 const NOTIFICATION_OPTIONS = [
   { value: 10, unit: 'minute', label: '10 minutes before' },
@@ -14,7 +17,7 @@ const NOTIFICATION_OPTIONS = [
 
 const EditEventModal = ({ isOpen, onClose, event }) => {
   const { updateEvent } = useCalendarContext();
-  
+
   // Format the date for the date input
   const formatDateForInput = (date) => {
     const year = date.getFullYear();
@@ -22,7 +25,7 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
-  
+
   // Initialize form state
   const [formData, setFormData] = useState({
     title: '',
@@ -32,12 +35,14 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
     location: '',
     description: '',
     isTentative: false,
-    notifications: []
+    notifications: [],
+    isRecurring: false,
+    recurrenceRule: null
   });
-  
+
   // State for notification dropdown
   const [selectedNotification, setSelectedNotification] = useState(null);
-  
+
   // Set initial form data when event changes
   useEffect(() => {
     if (event) {
@@ -49,62 +54,71 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
         location: event.location,
         description: event.description,
         isTentative: event.isTentative,
-        notifications: event.notifications || []
+        notifications: event.notifications || [],
+        isRecurring: event.isRecurring || false,
+        recurrenceRule: event.recurrenceRule || null
       });
     }
   }, [event]);
-  
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: newValue
-    }));
+    if (name === 'recurrenceRule') {
+      // Handle recurrence rule changes specially
+      setFormData(prev => ({
+        ...prev,
+        recurrenceRule: value
+      }));
+    } else {
+      const newValue = type === 'checkbox' ? checked : value;
+      setFormData(prev => ({
+        ...prev,
+        [name]: newValue
+      }));
+    }
   };
-  
+
   const addNotification = () => {
     if (!selectedNotification) return;
-    
+
     const notificationOption = NOTIFICATION_OPTIONS.find(
       option => option.value === parseInt(selectedNotification, 10)
     );
-    
+
     if (notificationOption) {
       // Check if this notification is already added
       const alreadyExists = formData.notifications.some(
         n => n.value === notificationOption.value
       );
-      
+
       if (!alreadyExists) {
         setFormData(prev => ({
           ...prev,
           notifications: [...prev.notifications, notificationOption]
         }));
-        
+
         // Reset selection
         setSelectedNotification(null);
       }
     }
   };
-  
+
   const removeNotification = (index) => {
     setFormData(prev => ({
       ...prev,
       notifications: prev.notifications.filter((_, i) => i !== index)
     }));
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Create updated event object
     const [year, month, day] = formData.date.split('-').map(num => parseInt(num, 10));
-    
+
     // Create date using local date components (month is 0-indexed in JavaScript Date)
     const eventDate = new Date(year, month - 1, day);
-    
+
     const updatedEvent = {
       ...event, // Keep the original id and any other properties
       title: formData.title,
@@ -114,24 +128,26 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
       location: formData.location,
       description: formData.description,
       isTentative: formData.isTentative,
-      notifications: formData.notifications
+      notifications: formData.notifications,
+      isRecurring: formData.isRecurring,
+      recurrenceRule: formData.isRecurring ? formData.recurrenceRule : null
     };
-    
+
     // Update event
     updateEvent(updatedEvent);
-    
+
     // Close modal
     onClose();
   };
-  
+
   if (!isOpen || !event) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Edit Event</h2>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
             aria-label="Close"
@@ -141,7 +157,7 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
             </svg>
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
@@ -157,7 +173,7 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
               required
             />
           </div>
-          
+
           <div className="mb-4">
             <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
               Date
@@ -172,38 +188,37 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
               required
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-1">
-                Start Time
-              </label>
-              <input
-                type="time"
-                id="startTime"
+              <TimeSelector
+                label="Start Time"
                 name="startTime"
                 value={formData.startTime}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
+                placeholder="Select start time"
               />
             </div>
             <div>
-              <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 mb-1">
-                End Time
-              </label>
-              <input
-                type="time"
-                id="endTime"
+              <TimeSelector
+                label="End Time"
                 name="endTime"
                 value={formData.endTime}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
+                placeholder="Select end time"
               />
             </div>
           </div>
-          
+
+          <DurationSelector
+            startTime={formData.startTime}
+            endTime={formData.endTime}
+            onEndTimeChange={handleChange}
+            name="endTime"
+          />
+
           <div className="mb-4">
             <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
               Location
@@ -217,7 +232,7 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          
+
           <div className="mb-4">
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Description
@@ -231,7 +246,7 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          
+
           <div className="mb-4">
             <div className="flex items-center">
               <input
@@ -247,12 +262,12 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
               </label>
             </div>
           </div>
-          
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Notifications
             </label>
-            
+
             {formData.notifications.length > 0 && (
               <div className="mb-3 space-y-2">
                 {formData.notifications.map((notification, index) => (
@@ -271,7 +286,7 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
                 ))}
               </div>
             )}
-            
+
             <div className="flex items-center space-x-2">
               <select
                 value={selectedNotification || ''}
@@ -295,7 +310,47 @@ const EditEventModal = ({ isOpen, onClose, event }) => {
               </button>
             </div>
           </div>
-          
+
+          {event?.isRecurring && (
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="flex">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.84-.833-2.598 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <div>
+                  <h4 className="text-sm font-medium text-yellow-800">Recurring Event</h4>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Changes will apply to this occurrence only.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-4">
+            <div className="flex items-center mb-3">
+              <input
+                type="checkbox"
+                id="isRecurring"
+                name="isRecurring"
+                checked={formData.isRecurring}
+                onChange={handleChange}
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+              />
+              <label htmlFor="isRecurring" className="ml-2 block text-sm text-gray-700">
+                Make this a recurring event
+              </label>
+            </div>
+
+            {formData.isRecurring && (
+              <RecurrenceSelector
+                value={formData.recurrenceRule}
+                onChange={handleChange}
+                name="recurrenceRule"
+              />
+            )}
+          </div>
+
           <div className="flex justify-end space-x-3">
             <button
               type="button"

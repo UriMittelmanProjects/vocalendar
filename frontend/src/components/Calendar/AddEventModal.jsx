@@ -1,6 +1,9 @@
 // vocalendar/frontend/src/components/Calendar/AddEventModal.jsx
 import React, { useState } from 'react';
 import { useCalendarContext } from '../../context/CalendarContext';
+import TimeSelector from '../UI/TimeSelector.jsx';
+import DurationSelector from '../UI/DurationSelector.jsx';
+import RecurrenceSelector from '../UI/RecurrenceSelector';
 
 const NOTIFICATION_OPTIONS = [
   { value: 10, unit: 'minute', label: '10 minutes before' },
@@ -14,7 +17,7 @@ const NOTIFICATION_OPTIONS = [
 
 const AddEventModal = ({ isOpen, onClose }) => {
   const { selectedDate, addEvent } = useCalendarContext();
-  
+
   // Format the selected date for the date input
   const formatDateForInput = (date) => {
     const year = date.getFullYear();
@@ -22,7 +25,7 @@ const AddEventModal = ({ isOpen, onClose }) => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
-  
+
   // Initialize form with current selected date
   const [formData, setFormData] = useState({
     title: '',
@@ -32,64 +35,73 @@ const AddEventModal = ({ isOpen, onClose }) => {
     location: '',
     description: '',
     isTentative: false,
-    notifications: []
+    notifications: [],
+    isRecurring: false,
+    recurrenceRule: null
   });
-  
+
   // State for notification dropdown
   const [selectedNotification, setSelectedNotification] = useState(null);
-  
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: newValue
-    }));
+    if (name === 'recurrenceRule') {
+      // Handle recurrence rule changes specially
+      setFormData(prev => ({
+        ...prev,
+        recurrenceRule: value
+      }));
+    } else {
+      const newValue = type === 'checkbox' ? checked : value;
+      setFormData(prev => ({
+        ...prev,
+        [name]: newValue
+      }));
+    }
   };
-  
+
   const addNotification = () => {
     if (!selectedNotification) return;
-    
+
     const notificationOption = NOTIFICATION_OPTIONS.find(
       option => option.value === parseInt(selectedNotification, 10)
     );
-    
+
     if (notificationOption) {
       // Check if this notification is already added
       const alreadyExists = formData.notifications.some(
         n => n.value === notificationOption.value
       );
-      
+
       if (!alreadyExists) {
         setFormData(prev => ({
           ...prev,
           notifications: [...prev.notifications, notificationOption]
         }));
-        
+
         // Reset selection
         setSelectedNotification(null);
       }
     }
   };
-  
+
   const removeNotification = (index) => {
     setFormData(prev => ({
       ...prev,
       notifications: prev.notifications.filter((_, i) => i !== index)
     }));
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Create event object
     // Fix the date handling by properly parsing the form date
     const [year, month, day] = formData.date.split('-').map(num => parseInt(num, 10));
-    
+
     // Create date using local date components (month is 0-indexed in JavaScript Date)
     const eventDate = new Date(year, month - 1, day);
-    
+
     const newEvent = {
       id: Date.now(), // Simple unique ID generation
       title: formData.title,
@@ -99,15 +111,17 @@ const AddEventModal = ({ isOpen, onClose }) => {
       location: formData.location,
       description: formData.description,
       isTentative: formData.isTentative,
-      notifications: formData.notifications
+      notifications: formData.notifications,
+      isRecurring: formData.isRecurring,
+      recurrenceRule: formData.isRecurring ? formData.recurrenceRule : null
     };
-    
+
     // Add event
     addEvent(newEvent);
-    
+
     // Close modal and reset form
     onClose();
-    
+
     // Reset form
     setFormData({
       title: '',
@@ -117,11 +131,13 @@ const AddEventModal = ({ isOpen, onClose }) => {
       location: '',
       description: '',
       isTentative: false,
-      notifications: []
+      notifications: [],
+      isRecurring: false,
+      recurrenceRule: null
     });
     setSelectedNotification(null);
   };
-  
+
   // Keep the form date updated when selectedDate changes
   React.useEffect(() => {
     setFormData(prev => ({
@@ -129,15 +145,15 @@ const AddEventModal = ({ isOpen, onClose }) => {
       date: formatDateForInput(selectedDate)
     }));
   }, [selectedDate]);
-  
+
   if (!isOpen) return null;
-  
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Add New Event</h2>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
             aria-label="Close"
@@ -147,7 +163,7 @@ const AddEventModal = ({ isOpen, onClose }) => {
             </svg>
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
@@ -163,7 +179,7 @@ const AddEventModal = ({ isOpen, onClose }) => {
               required
             />
           </div>
-          
+
           <div className="mb-4">
             <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
               Date
@@ -178,38 +194,37 @@ const AddEventModal = ({ isOpen, onClose }) => {
               required
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-1">
-                Start Time
-              </label>
-              <input
-                type="time"
-                id="startTime"
+              <TimeSelector
+                label="Start Time"
                 name="startTime"
                 value={formData.startTime}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
+                placeholder="Select start time"
               />
             </div>
             <div>
-              <label htmlFor="endTime" className="block text-sm font-medium text-gray-700 mb-1">
-                End Time
-              </label>
-              <input
-                type="time"
-                id="endTime"
+              <TimeSelector
+                label="End Time"
                 name="endTime"
                 value={formData.endTime}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
+                placeholder="Select end time"
               />
             </div>
           </div>
-          
+
+          <DurationSelector
+            startTime={formData.startTime}
+            endTime={formData.endTime}
+            onEndTimeChange={handleChange}
+            name="endTime"
+          />
+
           <div className="mb-4">
             <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
               Location
@@ -223,7 +238,7 @@ const AddEventModal = ({ isOpen, onClose }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          
+
           <div className="mb-4">
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Description
@@ -237,7 +252,7 @@ const AddEventModal = ({ isOpen, onClose }) => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
-          
+
           <div className="mb-4">
             <div className="flex items-center">
               <input
@@ -253,12 +268,12 @@ const AddEventModal = ({ isOpen, onClose }) => {
               </label>
             </div>
           </div>
-          
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Notifications
             </label>
-            
+
             {formData.notifications.length > 0 && (
               <div className="mb-3 space-y-2">
                 {formData.notifications.map((notification, index) => (
@@ -277,7 +292,7 @@ const AddEventModal = ({ isOpen, onClose }) => {
                 ))}
               </div>
             )}
-            
+
             <div className="flex items-center space-x-2">
               <select
                 value={selectedNotification || ''}
@@ -301,7 +316,31 @@ const AddEventModal = ({ isOpen, onClose }) => {
               </button>
             </div>
           </div>
-          
+
+          <div className="mb-4">
+            <div className="flex items-center mb-3">
+              <input
+                type="checkbox"
+                id="isRecurring"
+                name="isRecurring"
+                checked={formData.isRecurring}
+                onChange={handleChange}
+                className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+              />
+              <label htmlFor="isRecurring" className="ml-2 block text-sm text-gray-700">
+                Make this a recurring event
+              </label>
+            </div>
+
+            {formData.isRecurring && (
+              <RecurrenceSelector
+                value={formData.recurrenceRule}
+                onChange={handleChange}
+                name="recurrenceRule"
+              />
+            )}
+          </div>
+
           <div className="flex justify-end space-x-3">
             <button
               type="button"
